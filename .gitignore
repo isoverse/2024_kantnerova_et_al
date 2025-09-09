@@ -16,6 +16,7 @@ tmp/**/*
 # explicitly allow all files in data (by default), except .raw  
 !data/**/*
 *.raw
+*.parquet
 
 # example files in scripts subfolder are excluded
 scripts/**/*
