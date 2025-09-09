@@ -1,4 +1,4 @@
-# Kantnerová et al. (2024) supplemental
+# Kantnerová et al. (2024) supplemental ([:octocat: GitHub repo](https://github.com/isoverse/2024_kantnerova_et_al))
 
 This repository holds data and source code for [*Kantnerová, K, Kuhlbusch, N, Juchelka, D, Hilkert, A, Kopf, S, Neubauer, C. A guide to precise measurements of
 isotope abundance by ESI-Orbitrap MS. Nature Protocols, 2024*](https://doi.org/10.1038/s41596-024-00981-5).
