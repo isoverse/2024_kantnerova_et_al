@@ -1,7 +1,17 @@
 # Kantnerová et al. (2024) supplemental ([🔗 GitHub repo](https://github.com/isoverse/2024_kantnerova_et_al))
 
 This repository holds data and source code for [*Kantnerová, K, Kuhlbusch, N, Juchelka, D, Hilkert, A, Kopf, S, Neubauer, C. A guide to precise measurements of
-isotope abundance by ESI-Orbitrap MS. Nature Protocols, 2024*](https://doi.org/10.1038/s41596-024-00981-5).
+isotope abundance by ESI-Orbitrap MS. Nature Protocols, 2024*](https://doi.org/10.1038/s41596-024-00981-5). Some .raw files are not included here due to their size.
+These are available on [MassIVE](https://massive.ucsd.edu/ProteoSAFe/static/massive.jsp), records
+[MSV000093222](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=154ebe2d38334cb5969b780ccb8fbb22) and
+[MSV000093223](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=a93f04f4d70c4975994f59fbc1458071).
+
+The rendered HTML reports of the notebooks can be viewed here:
+
+ - [shot_noise.html](https://www.isoverse.org/2024_kantnerova_et_al/shot_noise.html)
+ - [replicates.html](https://www.isoverse.org/2024_kantnerova_et_al/replicates.html)
+ - [flow_injection.html](https://www.isoverse.org/2024_kantnerova_et_al/flow_injection.html)
+
 
 ## What can I do with this code? <a href="https://creativecommons.org/licenses/by/4.0/"><img src="https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by.png" align = "right" width = "100"/></a>
 
