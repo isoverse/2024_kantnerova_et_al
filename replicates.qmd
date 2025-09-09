@@ -1,6 +1,6 @@
 ---
 title: "Replicates"
-author: "Kantnerova et al. (2023)"
+author: "Kantnerova et al. (2024)"
 date: "`r format(Sys.Date(), '%d %b %Y')`"
 number-sections: false
 toc: true
@@ -44,7 +44,7 @@ library(cowplot) # arrange multipanel plots
 ```{r, include=FALSE}
 # global knitting options for code rendering
 knitr::opts_chunk$set(
-  collapse = TRUE, comment = "#>",
+  collapse = TRUE, comment = "",
   dev = c("png", "pdf"), fig.keep = "all",
   dev.args = list(pdf = list(encoding = "WinAnsi", useDingbats = FALSE)),
   fig.path = sprintf("plots/%s_", gsub("\\.rmarkdown", "", knitr::current_input()))

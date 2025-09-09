@@ -1,6 +1,6 @@
 ---
 title: "Flow injection"
-author: "Kantnerova et al. (2023)"
+author: "Kantnerova et al. (2024)"
 date: "`r format(Sys.Date(), '%d %b %Y')`"
 number-sections: false
 toc: true
@@ -44,7 +44,7 @@ library(cowplot) # arrange multipanel plots
 ```{r, include=FALSE}
 # global knitting options for code rendering
 knitr::opts_chunk$set(
-  collapse = TRUE, comment = "#>",
+  collapse = TRUE, comment = "",
   dev = c("png", "pdf"), fig.keep = "all",
   dev.args = list(pdf = list(encoding = "WinAnsi", useDingbats = FALSE)),
   fig.path = sprintf("plots/%s_", gsub("\\.rmarkdown", "", knitr::current_input()))
@@ -274,14 +274,15 @@ flow_injections_optimal_w_basepeak |> orbi_plot_raw_data(y = ratio)
 fig_a <- flow_injections_bad |>
   orbi_plot_raw_data(
     isotopocule = "M0", 
-    y = intensity, 
+    # FIME: should be intensity!
+    y = ions.incremental, 
     y_scale = "log",
     color = sample_name,
     show_outliers = FALSE
   ) +
   # customize intensity plot
   facet_grid(. ~ injection, scales = "free_x", space = "free_x") +
-  coord_cartesian(ylim = c(3.1e7, 1.2e9)) +
+  #coord_cartesian(ylim = c(3.1e7, 1.2e9)) +
   labs(y = "EIC nitrate / arb. unit") +
   theme(
     axis.title.x = element_blank(),

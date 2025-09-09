@@ -1,6 +1,6 @@
 ---
 title: "Shot Noise Analysis"
-author: "Kantnerova et al. (2023)"
+author: "Kantnerova et al. (2024)"
 date: "`r format(Sys.Date(), '%d %b %Y')`"
 number-sections: false
 toc: true
@@ -43,7 +43,7 @@ library(cowplot) # arrange multipanel plots
 ```{r, include=FALSE}
 # global knitting options for code rendering
 knitr::opts_chunk$set(
-  collapse = TRUE, comment = "#>",
+  collapse = TRUE, comment = "",
   dev = c("png", "pdf"), fig.keep = "all",
   dev.args = list(pdf = list(encoding = "WinAnsi", useDingbats = FALSE)),
   fig.path = sprintf("plots/%s_", gsub("\\.rmarkdown", "", knitr::current_input()))
@@ -52,10 +52,65 @@ knitr::opts_chunk$set(
 
 # Trifluoroacetate (TFA)
 
-## Data
+## Data from RAW (recommended)
 
 ```{r}
-# load, process, and export tfa data
+#| cache: true
+# read files
+raw_files <- 
+  "data/shot_noise/tfa" |>
+  orbi_find_raw() |>
+  orbi_read_raw()
+
+# aggregate data
+raw_agg <- raw_files |> orbi_aggregate_raw()
+```
+
+```{r}
+# fetch dataset of interest and calculate quants
+ds <- 
+  raw_agg |>
+  orbi_get_data(
+    file_info = c("uid", "filepath" = "file_path"),
+    scans = c("uid", "scan", "time.min", "tic", "it.ms", "resolution", "microscans"),
+    peaks = everything()
+  ) |>
+  rename("filename" = "uid", "scan.no" = "scan") |> 
+  mutate(filename = gsub("\\.raw", "", filename)) |>
+  cross_join(
+    readr::read_tsv("data/shot_noise/tfa/isotopologs.tsv",
+             show_col_types = FALSE) |>
+      rename("compound" = "#Compound", "isotopocule" = "isotopolog")
+  ) |>
+  filter(abs(mass - mzMeasured) * 1000 < `Tolerance [mmu]`) |>
+  # calculate ions incremental
+  # todo: turn into a function (see Caj's notes on the papers)
+  mutate(
+    ions.incremental = intensity / peakNoise * 3.0 / z *
+      sqrt(240000 / resolution) * sqrt(microscans),
+    .after = "intensity"
+  )
+
+# data tfa
+data_tfa <-
+  ds |>
+  orbi_flag_satellite_peaks() |>
+  orbi_flag_weak_isotopocules(min_percent = 10) |>
+  orbi_flag_outliers(agc_fold_cutoff = 2) |>
+  orbi_define_basepeak("M0")
+
+shot_noise_tfa <- 
+  data_tfa |>
+  orbi_analyze_shot_noise() |>
+  orbi_export_data_to_excel("output/shot_noise_tfa.xlsx")
+```
+
+
+## Data from ISOX (obsolete)
+
+```{r}
+#| eval: false
+# originally, this is how the data was read in
 data_tfa <-
   "data/shot_noise/tfa" |>
   orbi_find_isox() |>
@@ -131,7 +186,7 @@ tfa_vs_time <-
 
 # combine
 plot_grid(
-  tfa_vs_ions + theme(legend.position = c(0.85, 0.74)), 
+  tfa_vs_ions + theme(legend.position.inside = c(0.85, 0.74)), 
   tfa_vs_time + theme(legend.position = "none"),
   align = "h", nrow = 1, axis = "tb"
 )
