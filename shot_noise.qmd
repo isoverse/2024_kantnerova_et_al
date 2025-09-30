@@ -60,67 +60,47 @@ knitr::opts_chunk$set(
 raw_files <- 
   "data/shot_noise/tfa" |>
   orbi_find_raw() |>
-  orbi_read_raw()
-
-# aggregate data
-raw_agg <- raw_files |> orbi_aggregate_raw()
+  orbi_read_raw(include_spectra = c(1, 10, 100)) |>
+  orbi_aggregate_raw() |>
+  orbi_identify_isotopocules("data/shot_noise/tfa/isotopologs.tsv") |>
+  orbi_filter_isotopocules() |>
+  orbi_calculate_ions()
 ```
+
+## Bonus Figure: TFA Spectra
 
 ```{r}
-# fetch dataset of interest and calculate quants
-ds <- 
-  raw_agg |>
-  orbi_get_data(
-    file_info = c("uid", "filepath" = "file_path"),
-    scans = c("uid", "scan", "time.min", "tic", "it.ms", "resolution", "microscans"),
-    peaks = everything()
-  ) |>
-  rename("filename" = "uid", "scan.no" = "scan") |> 
-  mutate(filename = gsub("\\.raw", "", filename)) |>
-  cross_join(
-    readr::read_tsv("data/shot_noise/tfa/isotopologs.tsv",
-             show_col_types = FALSE) |>
-      rename("compound" = "#Compound", "isotopocule" = "isotopolog")
-  ) |>
-  filter(abs(mass - mzMeasured) * 1000 < `Tolerance [mmu]`) |>
-  # calculate ions incremental
-  # todo: turn into a function (see Caj's notes on the papers)
-  mutate(
-    ions.incremental = intensity / peakNoise * 3.0 / z *
-      sqrt(240000 / resolution) * sqrt(microscans),
-    .after = "intensity"
-  )
-
-# data tfa
-data_tfa <-
-  ds |>
-  orbi_flag_satellite_peaks() |>
-  orbi_flag_weak_isotopocules(min_percent = 10) |>
-  orbi_flag_outliers(agc_fold_cutoff = 2) |>
-  orbi_define_basepeak("M0")
-
-shot_noise_tfa <- 
-  data_tfa |>
-  orbi_analyze_shot_noise() |>
-  orbi_export_data_to_excel("output/shot_noise_tfa.xlsx")
+#| label: fig-bonus-tfa-spectra
+#| fig-cap: TFA spectra
+#| fig-width: 10
+#| fig-height: 6
+#| warning: false
+raw_files |> orbi_plot_spectra()
 ```
-
 
 ## Data from ISOX (obsolete)
 
 ```{r}
 #| eval: false
 # originally, this is how the data was read in
-data_tfa <-
+isox_files <-
   "data/shot_noise/tfa" |>
   orbi_find_isox() |>
   orbi_read_isox() |>
-  orbi_simplify_isox() |>
+  orbi_simplify_isox()
+```
+
+## Shot noise calculation
+
+```{r}
+# pre-process data
+data_tfa <- raw_files |>
   orbi_flag_satellite_peaks() |>
   orbi_flag_weak_isotopocules(min_percent = 10) |>
   orbi_flag_outliers(agc_fold_cutoff = 2) |>
   orbi_define_basepeak("M0")
 
+# calculate shotnoise
 shot_noise_tfa <- 
   data_tfa |>
   orbi_analyze_shot_noise() |>
