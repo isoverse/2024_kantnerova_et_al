@@ -1,6 +1,7 @@
 ---
 title: "Shot Noise Analysis"
 author: "Kantnerova et al. (2024)"
+subtitle: "This notebook analyzes the shot noise from TFA and MRFA analyses as discussed in Kantnerova et al. (2024)"
 date: "`r format(Sys.Date(), '%d %b %Y')`"
 number-sections: false
 toc: true

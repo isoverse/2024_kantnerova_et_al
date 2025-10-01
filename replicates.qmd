@@ -1,6 +1,7 @@
 ---
 title: "Replicates"
 author: "Kantnerova et al. (2024)"
+subtitle: "This notebook processes replicate Orbitrap IRMS analyses of MRFA and generates Figure 11 of Kantnerova et al. (2024)"
 date: "`r format(Sys.Date(), '%d %b %Y')`"
 number-sections: false
 toc: true
@@ -51,39 +52,66 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Data
+# Data from RAW (recommend)
+
+```{r}
+# read files
+raw_files <- 
+  "data/replicates" |>
+  orbi_find_raw() |>
+  orbi_read_raw(include_spectra = 1) |>
+  orbi_aggregate_raw() |>
+  orbi_identify_isotopocules("data/replicates/isotopologs.tsv") |>
+  orbi_filter_isotopocules() |>
+  orbi_calculate_ions()
+
+# get replicate information from file name
+raw_files$file_info$replicate <- raw_files$file_info$filename |>
+  str_extract("Replicate_\\d") |> str_replace("_", " ")
+```
+
+# Bonus Figure: MFRA Spectra
+
+```{r}
+#| label: fig-bonus-mrfa-spectra-alanine
+#| fig-cap: MRFA spectra - alanine
+#| fig-width: 10
+#| fig-height: 10
+#| warning: false
+# Arginine mass window
+raw_files |> orbi_plot_spectra(mz_min = 102, mz_max = 110)
+```
+
+# Data from ISOX (legacy)
+
+```{r}
+#| eval: false
+# originally, this is how the data was read in
+isox_files_aas <-
+  "data/replicates" |>
+  orbi_find_isox() |>
+  orbi_read_isox()
+```
+
+# Calculations
 
 ```{r}
 # isotopocules data
-data <- 
-  "data/replicates" |>
-  orbi_find_isox() |>
-  orbi_read_isox() |>
+data_all <- 
+  raw_files |>
   orbi_flag_satellite_peaks() |> 
-  orbi_flag_weak_isotopocules(min_percent = 30) |> 
-  # very tight agc data, discard anything that's 5% above or below the mean
-  orbi_flag_outliers(agc_fold_cutoff = 1.05) |>
-  # pull out replicate from filename
-  mutate(
-    replicate = str_extract(filename, "Replicate_\\d") |> str_replace("_", " ")
-  ) |>
-  # expand amino acid names
-  mutate(
-    compound = compound |>
-      fct_recode(
-        "Alanine" = "Ala_imm",
-        "Arginine" = "Arg_imm",
-        "Methionine" = "Met_imm",
-        "Phenylalanine" = "Phe_imm"
-      )
-  )
-
-# calculate ratios for 13C/M0
-ratios <- data |>
+  orbi_flag_weak_isotopocules(min_percent = 90) |> 
+  # tight agc data, discard anything that's 5% above or below the mean
+  orbi_flag_outliers(agc_fold_cutoff = 1.05) 
+  
+# summarize data
+ratios <- data_all |>
+  # define base peak
   orbi_define_basepeak("M0") |>
-  orbi_filter_isox(isotopocules = "13C") |>
-  group_by(replicate) |>
-  orbi_summarize_results(ratio_method = "sum") 
+  # pull out data with `replicate` from file info added
+  orbi_get_data(file_info = "replicate", scans = everything(), peaks = everything()) |>
+  # so we can add it to the grouping
+  orbi_summarize_results(ratio_method = "sum", .by = "replicate") 
 ```
 
 # Figure 11 top panel
@@ -93,12 +121,12 @@ ratios <- data |>
 #| fig-width: 10
 #| fig-height: 3
 
-p_top <- data |>
+p_top <- data_all |>
   orbi_plot_raw_data(
     isotopocules = "M0",
     x_breaks = c(5, 10),
     y = intensity,
-    y_scale = "log",
+    y_scale = "linear",
     color = compound,
     show_outliers = FALSE
   ) +
@@ -108,6 +136,7 @@ p_top <- data |>
 p_top
 ```
 
+
 # Figure 11 bottom panel
 
 ```{r}
@@ -116,7 +145,7 @@ p_top
 #| fig-height: 5
 
 p_bottom <- 
-  ratios |>
+  ratios |> filter(isotopocule == "13C") |>
   ggplot() +
   aes(
     replicate, ratio, color = compound, shape = compound,
