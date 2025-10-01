@@ -17,6 +17,7 @@ tmp/**/*
 !data/**/*
 *.raw
 *.parquet
+*.cache.zip
 
 # example files in scripts subfolder are excluded
 scripts/**/*
