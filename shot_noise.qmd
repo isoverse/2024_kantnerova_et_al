@@ -78,7 +78,7 @@ raw_files <-
 raw_files |> orbi_plot_spectra()
 ```
 
-## Data from ISOX (obsolete)
+## Data from ISOX (legacy)
 
 ```{r}
 #| eval: false
@@ -222,28 +222,65 @@ shot_noise_tfa |>
 
 # Model Peptide (MRFA)
 
-## Data
+## Data from RAW (recommend)
+
+```{r}
+#| cache: true
+# read files
+raw_files_aas <- 
+  "data/shot_noise/mrfa" |>
+  orbi_find_raw() |>
+  orbi_read_raw(include_spectra = c(1, 10, 100)) |>
+  orbi_aggregate_raw() |>
+  orbi_identify_isotopocules("data/shot_noise/mrfa/isotopologs.tsv") |>
+  orbi_filter_isotopocules() |>
+  orbi_calculate_ions()
+```
+
+## Bonus Figure: MFRA Spectra
+
+```{r}
+#| label: fig-bonus-mrfa-spectra-alanine
+#| fig-cap: MRFA spectra - alanine
+#| fig-width: 10
+#| fig-height: 6
+#| warning: false
+# Alanine mass window
+raw_files_aas |> orbi_plot_spectra(mz_min = 43, mz_max = 46, max_scans = 1)
+```
+
+```{r}
+#| label: fig-bonus-mrfa-spectra-methionine
+#| fig-cap: MRFA spectra - methionine
+#| fig-width: 10
+#| fig-height: 6
+#| warning: false
+# Methionine mass window
+raw_files_aas |> orbi_plot_spectra(mz_min = 102, mz_max = 110, max_scans = 1)
+```
+
+## Data from ISOX (legacy)
+
+```{r}
+#| eval: false
+# originally, this is how the data was read in
+isox_files_aas <-
+  "data/shot_noise/mrfa" |>
+  orbi_find_isox() |>
+  orbi_read_isox() |>
+  orbi_simplify_isox()
+```
+
+## Shot noise calculation
 
 ```{r}
 # load, process, and export mrfa data
 data_aas <- 
-  "data/shot_noise/mrfa" |>
-  orbi_find_isox() |>
-  orbi_read_isox() |>
-  orbi_simplify_isox() |>
+  raw_files_aas |>
   orbi_flag_satellite_peaks() |>
-  orbi_flag_weak_isotopocules(min_percent = 10) |> 
+  orbi_flag_weak_isotopocules(min_percent = 90) |> 
   orbi_flag_outliers(agc_fold_cutoff = 2) |> 
-  orbi_define_basepeak("M0") |>
-  mutate(
-    compound = compound |>
-      fct_recode(
-        "Alanine" = "Ala_imm",
-        "Arginine" = "Arg_imm",
-        "Methionine" = "Met_imm",
-        "Phenylalanine" = "Phe_imm"
-      )
-  )
+  orbi_define_basepeak("M0")
 
 shot_noise_aas <-
   data_aas |>
