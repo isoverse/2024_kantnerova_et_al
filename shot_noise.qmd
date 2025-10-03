@@ -64,8 +64,7 @@ raw_files <-
   orbi_read_raw(include_spectra = c(1, 10, 100)) |>
   orbi_aggregate_raw() |>
   orbi_identify_isotopocules("data/shot_noise/tfa/isotopologs.tsv") |>
-  orbi_filter_isotopocules() |>
-  orbi_calculate_ions()
+  orbi_filter_isotopocules()
 ```
 
 ## Bonus Figure: TFA Spectra
@@ -74,7 +73,7 @@ raw_files <-
 #| label: fig-bonus-tfa-spectra
 #| fig-cap: TFA spectra
 #| fig-width: 10
-#| fig-height: 6
+#| fig-height: 8
 #| warning: false
 raw_files |> orbi_plot_spectra()
 ```
@@ -243,8 +242,8 @@ raw_files_aas <-
 ```{r}
 #| label: fig-bonus-mrfa-spectra-alanine
 #| fig-cap: MRFA spectra - alanine
-#| fig-width: 10
-#| fig-height: 6
+#| fig-width: 8
+#| fig-height: 4
 #| warning: false
 # Alanine mass window
 raw_files_aas |> orbi_plot_spectra(mz_min = 43, mz_max = 46, max_scans = 1)
@@ -253,8 +252,8 @@ raw_files_aas |> orbi_plot_spectra(mz_min = 43, mz_max = 46, max_scans = 1)
 ```{r}
 #| label: fig-bonus-mrfa-spectra-methionine
 #| fig-cap: MRFA spectra - methionine
-#| fig-width: 10
-#| fig-height: 6
+#| fig-width: 8
+#| fig-height: 4
 #| warning: false
 # Methionine mass window
 raw_files_aas |> orbi_plot_spectra(mz_min = 102, mz_max = 110, max_scans = 1)

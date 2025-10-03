@@ -62,8 +62,7 @@ raw_files <-
   orbi_read_raw(include_spectra = 1) |>
   orbi_aggregate_raw() |>
   orbi_identify_isotopocules("data/replicates/isotopologs.tsv") |>
-  orbi_filter_isotopocules() |>
-  orbi_calculate_ions()
+  orbi_filter_isotopocules()
 
 # get replicate information from file name
 raw_files$file_info$replicate <- raw_files$file_info$filename |>
@@ -76,7 +75,7 @@ raw_files$file_info$replicate <- raw_files$file_info$filename |>
 #| label: fig-bonus-mrfa-spectra-alanine
 #| fig-cap: MRFA spectra - alanine
 #| fig-width: 10
-#| fig-height: 10
+#| fig-height: 12
 #| warning: false
 # Arginine mass window
 raw_files |> orbi_plot_spectra(mz_min = 102, mz_max = 110)
